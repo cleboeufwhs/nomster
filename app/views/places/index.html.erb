@@ -10,4 +10,6 @@
   </div>
 <% end %>
 
-<%= will_paginate @place, previous_label: h("<"), next_label: h(">") %>
+<div class="col-4 offset-4" style="margin-bottom: 40px;">
+  <%= will_paginate @places, renderer: WillPaginate::ActionView::BootstrapLinkRenderer %>
+</div>
