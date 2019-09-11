@@ -1,2 +1,0 @@
-class Placed < ApplicationRecord
-end
