@@ -47,17 +47,29 @@
         <br />
       </div>
       <div class="col-12 col-md-3">
-<!--Phto Code -->
-
+        <% if place.photos.present? %>
+          <div class="photos-index float-right">
+        <img src="<%=  place.photos.first.picture %>" style="max-height: 200px; max-width: 200px;">
+          </div>
+        <% end %>
       </div>
     </div>
 
-<!--comment Code -->
-
+    <% if place.comments.present? %>
+      <div class="col-12">
+        <blockquote class="comment">
+          <% if place.comments.last.humanized_rating.present? %>
+            <b><%= place.comments.last.humanized_rating %></b> - <%= place.comments.last.message %>
+          <% end %>
+          <small>- <%= place.comments.last.user.email %></small>
+        </blockquote>
+      </div>
+    <% end %>
   </div>
 <% end %>
 
 <div class="clear"></div>
+
 
 <div class="col-10 offset-1">
   <%= will_paginate @places, renderer: WillPaginate::ActionView::BootstrapLinkRenderer %>

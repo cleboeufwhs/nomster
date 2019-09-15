@@ -1,3 +1,5 @@
+
+
 <div class="booyah-box col-10 offset-1">
   <h1><%= @place.name %></h1>
   <i><%= @place.address %></i>
@@ -5,40 +7,26 @@
   <p><%= @place.description %></p>
 
   <% if @place.latitude.present? && @place.longitude.present? %>
+    <script>
+      function initMap() {
+        var myLatLng = {lat: <%= @place.latitude %>, lng: <%= @place.longitude %>};
 
-  
-  <style>
-  #map {
-    height: 300px;
-  }
-  </style>
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 16,
+          center: myLatLng
+        });
 
-  </head>
+        var marker = new google.maps.Marker({
+          position: myLatLng,
+          map: map,
+          title: 'Hello World!'
+        });
+      }
+    </script>
 
-  <body>
-  <div id="map"></div>
-  <script>
-
-    function initMap() {
-      var myLatLng = {lat: <%= @place.latitude %>, lng: <%= @place.longitude %>};
-
-      var map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 12,
-        center: myLatLng
-      });
-
-      var marker = new google.maps.Marker({
-        position: myLatLng,
-        map: map,
-        title: 'Hello World!'
-      });
-    }
-  </script>
-
-  <script async defer
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBc6bNlBjr2qhUDAPTIAGp9VdyAeNYXICk&callback=initMap">
-  </script>
-
+    <script async defer
+     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBc6bNlBjr2qhUDAPTIAGp9VdyAeNYXICk&callback=initMap">
+      </script>
 
     <div id="map"></div>
 
@@ -46,58 +34,6 @@
 
   <br />
 
-  <div class="clear"></div>
-  <%= simple_form_for @comment, url: place_comments_path(@place) do |f| %>
-    <%= f.input :message %>
-    <%= f.input :rating, as: :select, collection: Comment::RATINGS %>
-    <%= f.submit "Add a Comment", class: 'btn btn-primary' %>
-  <% end %>
-
-<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
-  Add a Comment
-</button>
-
-<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">×</span>
-        </button>
-     <h4 class="modal-title" id="myModalLabel">Add a comment</h4>
-      </div>
-      <%= simple_form_for @comment, url: place_comments_path(@place) do |f| %>
-        <div class="modal-body">
-          <%= f.input :message %>
-          <%= f.input :rating, as: :select, collection: Comment::RATINGS %>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <%= f.submit "Add a Comment", class: 'btn btn-primary' %>
-        </div>
-      <% end %>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<h1>Comments</h1>
-
-<% @place.comments.each do |comment| %>
-  <div>
-    <blockquote>
-      <% if comment.humanized_rating.present? %>
-        <b><%= comment.humanized_rating %></b> -
-      <% end %>
-      <%= comment.message %>
-      <small><%= comment.user.email %></small>
-    </blockquote>
-  </div>
-<% end %>
 
   <div class="float-right">
     <% if current_user && current_user == @place.user %>
@@ -118,13 +54,19 @@
   <div class="clear"></div>
   <hr />
 
-<!--
-
   <h2 class="float-left">Reviews</h2>
   <br class="clear">
   <div class="row col-10 offset-1">
-
-
+    <% @place.comments.each do |comment| %>
+      <div class="col-12 col-sm-6">
+        <blockquote class="comment">
+          <% if comment.humanized_rating.present? %>
+            <b><%= comment.humanized_rating %></b> - <%= comment.message %>
+          <% end %>
+          <small>- <%= comment.user.email %></small>
+        </blockquote>
+      </div>
+    <% end %>
   </div>
   <div class="clear"></div>
   <hr />
@@ -132,15 +74,23 @@
   <h2 class="float-left">Photos</h2>
   <br /><br class="clear">
   <div class="row col-10 offset-1">
-
+    <% @place.photos.each do |photo| %>
+      <div class="col-12 col-sm-6">
+        <blockquote class="photo-display">
+          <img src="<%=  photo.picture %>" style="max-height: 200px; max-width: 200px;">
+       
+          <p><% if photo.caption.present? %>
+            <%= photo.caption %></p>
+          <% end %>
+        </blockquote>
+      </div>
+    <% end %>
   </div>
- -->
+
 
 <div class="clear"></div>
 
 </div>
-
-
 <!-- Review Modal -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -151,11 +101,15 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-
-      <!--
-
-
-    -->
+      <%= simple_form_for [@place, @comment] do |f| %>
+        <div class="modal-body">
+          <%= f.input :message, label: 'Review' %>
+          <%= f.input :rating, as: :select, collection: Comment::RATINGS %>
+        </div>
+        <div class="modal-footer">
+          <%= f.submit "Add a review", class: 'btn btn-secondary' %>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>
@@ -170,6 +124,15 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
+      <%= simple_form_for @photo, url: place_photos_path(@place) do |f| %>
+        <div class="modal-body">
+          <%= f.input :picture %>
+          <%= f.input :caption %>
+        </div>
+        <div class="modal-footer">
+          <%= f.submit "Add a photo", class: 'btn btn-secondary' %>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>
